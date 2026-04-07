@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s http://localhost:8000/styles.css)",
+      "Bash(curl -s http://localhost:8000/app.js)",
+      "Bash(curl -s http://localhost:8000/api/styles.css)",
+      "Bash(python -m json.tool)",
+      "Bash(xargs kill:*)",
+      "Bash(pip install:*)",
+      "Bash(python -m playwright install chromium)",
+      "Bash(python /tmp/test_qr.py)",
+      "Bash(timeout 5 python app.py)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill /PID 21148 /F)",
+      "Bash(powershell -Command \"Stop-Process -Id 21148 -Force\")",
+      "Bash(python:*)",
+      "Bash(rm -rf build *.spec)",
+      "Bash(pkill -f QR생성기 -9)",
+      "Bash(rm -rf dist/QR생성기.exe)",
+      "Bash(curl -X POST http://localhost:8000/create -H 'Content-Type: application/json' -d '{\"original_url\":\"https://example.com\",\"custom_alias\":\"\",\"expires_in_days\":30,\"qr_size\":300}')",
+      "Bash(curl -X POST http://localhost:8000/create -H 'Content-Type: application/json' -d '{\"original_url\":\"https://example.com\",\"custom_alias\":\"test123\",\"expires_in_days\":30,\"qr_size\":300}')",
+      "Bash(curl:*)",
+      "Bash(powershell -Command \"Get-Process -Name 'QR*' -ErrorAction SilentlyContinue | Stop-Process -Force\")",
+      "Bash(powershell -Command 'netstat -ano | Select-String '\\\\''8000'\\\\'' | ForEach-Object { $_.Split\\(\\)[4] } | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }')",
+      "Bash(powershell -Command \"Stop-Process -Id 16632 -Force\")"
+    ]
+  }
+}

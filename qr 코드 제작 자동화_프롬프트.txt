@@ -1,0 +1,511 @@
+1. 홍보물이나 홈페이지에 주소를 qr 코드와 쇼트링크 생성기를 만드는 
+프로그램을 만들고 싶어 이를 위한 프롬프트를 만들어줘
+-----------------
+2. 프롬프트 생성기
+You are a senior full-stack software engineer and product architect.
+
+You are going to help me design and implement a web-based tool that generates both QR codes and short links for URLs, specifically for use in marketing materials, brochures, and websites.
+
+Here is how you will proceed:
+
+1. Requirement Analysis
+- Understand that the tool should allow users to input a URL and generate:
+  a) A QR code (downloadable as PNG/SVG)
+  b) A short link (like bit.ly style)
+- Include optional features such as:
+  - Custom alias for short links
+  - Expiration date
+  - Click tracking analytics
+
+2. System Design
+- Propose a scalable architecture including:
+  - Frontend (React or simple HTML)
+  - Backend (Node.js / Python Flask / FastAPI)
+  - Database (for storing original URL, short URL, metadata)
+- Explain how URL redirection will work
+- Suggest APIs or libraries for QR generation and URL shortening
+
+3. Step-by-step Implementation
+- Provide code examples for:
+  - URL input form (frontend)
+  - API endpoint to create short link
+  - QR code generation logic
+  - Redirect endpoint for short URLs
+- Keep code modular and production-ready
+
+4. UX & Features Enhancement
+- Suggest UI/UX improvements for marketing users
+- Include features like:
+  - Copy button
+  - QR preview
+  - Download button
+  - Mobile-friendly design
+
+5. Output Format
+- Structure the answer as:
+  - Overview
+  - Architecture Diagram (text-based)
+  - Code snippets
+  - Feature suggestions
+
+Now, proceed to help me build: "QR 코드 + 쇼트링크 생성기 웹 프로그램"
+
+Take a deep breath and lets work this out in a step by step way to be sure we have the right answer.
+--------------------
+3. 클로드코드 생성기
+# QR 코드 + 쇼트링크 생성기 시스템 프롬프트 가이드
+
+마케팅용 URL을 입력하면 QR 코드와 쇼트링크를 동시에 생성하는 웹 기반 자동화 시스템입니다.
+사용자는 URL 입력 → 즉시 QR 코드(PNG/SVG) + 단축 URL 생성 → 다운로드 및 공유까지 한 번에 수행합니다.
+추가로 커스텀 alias, 만료일, 클릭 분석 기능까지 확장 가능합니다.
+
+입력 → URL
+출력 → QR 이미지 + Short URL + 메타데이터
+
+---
+
+## 2. 프로젝트 구조 (폴더 트리)
+
+```
+.claude/
+├── agents/
+│   ├── orchestrator.md
+│   ├── api-generator.md
+│   ├── qr-generator.md
+│   ├── redirect-handler.md
+│   └── analytics-tracker.md
+│
+├── skills/
+│   ├── generate-shortlink/
+│   │   └── SKILL.md
+│   ├── generate-qr/
+│   │   └── SKILL.md
+│   └── track-analytics/
+│       └── SKILL.md
+│
+├── commands/
+│   └── create-shortlink.md
+│
+├── settings.json
+
+src/
+├── backend/
+│   ├── app.py (FastAPI)
+│   ├── models.py
+│   ├── database.py
+│   ├── services/
+│   │   ├── shortener.py
+│   │   ├── qr.py
+│   │   └── analytics.py
+│   └── routes/
+│       ├── create.py
+│       ├── redirect.py
+│       └── stats.py
+│
+├── frontend/
+│   ├── index.html
+│   ├── app.js
+│   └── styles.css
+│
+outputs/
+```
+
+---
+
+## 3. 전체 워크플로우
+
+```
+[사용자 URL 입력]
+        │
+        ▼
+┌───────────────────────────────┐
+│ orchestrator                  │
+│ - 요청 분배                   │
+└───────────────────────────────┘
+        │
+        ▼
+┌───────────────────────────────┐
+│ 병렬 실행                     │
+│                               │
+│ shortlink 생성 ─────────┐     │
+│ QR 생성                │     │
+│ analytics 초기화       │     │
+│                       ▼     │
+│ 통합 결과 생성              │
+└───────────────────────────────┘
+        │
+        ▼
+┌───────────────────────────────┐
+│ reviewer                      │
+│ - URL 유효성                  │
+│ - 중복 체크                   │
+│ - 만료 정책 확인              │
+└───────────────────────────────┘
+        │
+        ▼
+[Frontend 반환 + 다운로드]
+```
+
+---
+
+## 4. 에이전트 설계 원칙
+
+에이전트 설계 원칙
+[https://code.claude.com/docs/ko/sub-agents](https://code.claude.com/docs/ko/sub-agents)
+
+클로드 코드의 공식 가이드라인을 참고해 설계한다.
+
+---
+
+### orchestrator.md
+
+* 역할: 전체 흐름 제어
+* 언제 호출: 요청 시작 시 MUST BE USED
+* 사용 스킬: generate-shortlink, generate-qr
+* 입력: URL, 옵션
+* 출력: short_url, qr_path
+* 검수 기준: 모든 결과 존재 여부
+
+---
+
+### api-generator.md
+
+* 역할: API 생성 및 URL 처리
+* 언제 호출: 백엔드 구축 시 USE PROACTIVELY
+* 사용 스킬: generate-shortlink
+* 입력: original_url
+* 출력: short_code
+* 검수 기준: 중복 없는 코드
+
+---
+
+### qr-generator.md
+
+* 역할: QR 코드 생성
+* 언제 호출: QR 필요 시 MUST BE USED
+* 사용 스킬: generate-qr
+* 입력: URL
+* 출력: PNG/SVG 파일
+* 검수 기준: 스캔 가능 여부
+
+---
+
+### redirect-handler.md
+
+* 역할: short URL → 원본 리디렉션
+* 언제 호출: 요청 시 MUST BE USED
+* 입력: short_code
+* 출력: redirect
+* 검수 기준: 301 정상 동작
+
+---
+
+### analytics-tracker.md
+
+* 역할: 클릭 데이터 수집
+* 언제 호출: redirect 시 USE PROACTIVELY
+* 입력: request metadata
+* 출력: DB 기록
+* 검수 기준: 정확한 카운트
+
+---
+
+## 5. Skill 설계
+
+Skill 설계
+설계원칙: [https://code.claude.com/docs/ko/skills](https://code.claude.com/docs/ko/skills)
+
+Claude Code 공식 가이드 문서를 반드시 따른다.
+
+---
+
+### generate-shortlink
+
+* 사용 시점: URL 단축 필요 시
+* 구조:
+
+```yaml
+---
+name: generate-shortlink
+description: URL을 단축 코드로 변환할 때 사용합니다.
+allowed-tools:
+  - Read
+  - Write
+---
+```
+
+* 로직:
+
+  * Base62 인코딩
+  * UUID → short code 변환
+
+* Usage:
+
+```python
+code = generate_short_code(url)
+```
+
+---
+
+### generate-qr
+
+* 사용 시점: QR 코드 필요 시
+
+* 라이브러리: qrcode, pillow
+
+* Usage:
+
+```python
+import qrcode
+img = qrcode.make(url)
+img.save("qr.png")
+```
+
+---
+
+### track-analytics
+
+* 사용 시점: 클릭 발생 시
+* 저장 데이터:
+
+  * IP
+  * User-Agent
+  * Timestamp
+
+---
+
+## 6. 단계별 빌드 프롬프트
+
+### 0단계
+
+```
+Claude Code 규칙 확인 및 프로젝트 구조 생성
+```
+
+---
+
+### 1단계
+
+```
+QR + Shortlink 시스템 아키텍처 설계
+FastAPI + SQLite 기반으로 구성
+```
+
+---
+
+### 2단계
+
+```
+FastAPI 서버 구현:
+- POST /create
+- GET /{code}
+- GET /stats/{code}
+```
+
+---
+
+### 3단계
+
+```
+.generate-shortlink, generate-qr 스킬 생성
+```
+
+---
+
+### 4단계
+
+```
+에이전트 생성 및 연결
+```
+
+---
+
+### 5단계
+
+```
+/create-shortlink 커맨드 생성
+```
+
+---
+
+### 6단계
+
+```
+테스트:
+URL 입력 → short link + QR 생성 확인
+```
+
+---
+
+## 7. 전체 원샷 프롬프트
+
+```
+QR 코드 + 쇼트링크 생성 웹 시스템을 구축해줘.
+
+요구사항:
+- URL 입력 → short link 생성
+- QR 코드 생성 (PNG, SVG)
+- custom alias 지원
+- 만료일 기능
+- 클릭 analytics
+
+기술:
+- Backend: FastAPI
+- Frontend: HTML + JS
+- DB: SQLite
+
+Claude Code 구조:
+- .claude/skills/
+- .claude/agents/
+- .claude/commands/
+
+각 SKILL.md는 YAML 포함
+에이전트는 orchestrator 구조
+
+전체 코드 + 폴더 생성
+```
+
+---
+
+## 8. 체크리스트 & 템플릿
+
+### SKILL.md 템플릿
+
+````markdown
+---
+name: skill-name
+description: 설명
+allowed-tools:
+  - Read
+  - Write
+---
+
+# Skill
+
+## Instructions
+...
+
+## Usage
+```python
+...
+````
+
+````
+
+---
+
+### agent.md 템플릿
+```yaml
+---
+name: agent-name
+description: MUST BE USED
+tools: [Read, Write]
+model: sonnet
+---
+````
+
+---
+
+### 디버깅 가이드
+
+* redirect 안될 경우 → DB 확인
+* QR 스캔 실패 → URL 인코딩 확인
+* 중복 코드 → 해시 충돌 검사
+
+---
+
+### 흔한 실수
+
+* short code 길이 너무 짧음
+* redirect 302 대신 301 필요
+* QR 해상도 낮음
+* analytics 누락
+
+---
+
+**완료: 바로 실행 가능한 prompt.md**
+---------------
+6. claude 에 넣어 제작지시
+
+1. 너는 시니어 코딩전문가야
+2. 홍보물이나 홈페이지에 주소를 qr 코드와 쇼트링크 생성기를 만드는 
+프로그램을 만들고 싶어
+3. 다음 코드를 확인하고 프로그램을 만들 계획을 세워줘
+4. 작업은 bkit skill이용해서 만들어줘 / three-man-team skill 이용해서 agent 를 만들어 업무를 병렬로 작업해줘
+5. 계획을 수립하고  taskmaster 로 계획을 세분화하여  task.md 만들고, 세분화된 계획에 맞춰 prd.md 만들어줘
+6. 로드맵.md 만들어서 작업을 진행해줘
+7. 세분화된 단계별로 작업하고 코딩agnet 로 코드를 검증하고 이상없는 경우 /clear 하고 다음 작업을 진행해줘 
+8. 작업시에는 진행율을 보여주면서 작업하고 다음 작업을 안내하면서 작업해 위 지시사항을 지침으로 저장하고
+   꼭 작업때마다 준수해줘
+
+-------------------
+완벽합니다! ✅ EXE 빌드가 완료되고 정상 작동합니다.
+
+  📦 QR생성기.exe 완성!
+
+  파일 위치:
+  C:\Users\최익창\Documents\프로그램제작\42. qr코드 자동화\src\backend\dist\QR생성기.exe
+
+  파일 크기: 58MB (모든 의존성 포함)
+
+  ✨ 기능
+
+  1. 자동 실행 - EXE를 더블클릭하면:
+    - FastAPI 서버 시작 (포트 8000)
+    - 2초 후 자동으로 브라우저 열기 (http://localhost:8000)
+    - QR 코드 + 쇼트링크 생성 가능
+  2. 배포 가능 - 이 EXE 파일 하나만 있으면 다른 사용자도 바로 실행 가능
+  3. 데이터 저장 - 생성된 QR 코드와 분석 데이터는 사용자 홈에 저장:
+  C:\Users\{사용자명}\.qr_generator\outputs\
+
+  🚀 사용 방법
+
+  1. QR생성기.exe 더블클릭
+  2. 자동으로 브라우저 열림
+  3. URL 입력 → 생성하기 클릭
+  4. QR 코드 + 쇼트링크 생성 완료
+  5. PNG/SVG 다운로드 또는 복사 가능
+
+  📝 다른 사용자에게 배포
+
+  이 EXE 파일을 다른 사람에게 주면:
+  - Python 설치 불필요
+  - 의존성 설치 불필요
+  - 그냥 더블클릭해서 사용 가능
+  - Windows 10/11 호환
+
+  현재 상태: ✅ 프로젝트 완료 (100%)
+  - Backend: FastAPI 서버 + SQLite DB
+  - Frontend: HTML/CSS/JS 반응형 UI
+  - 기능: QR 생성, URL 단축, 클릭 분석, 커스텀 별칭, 만료일 설정
+
+  필요하면 EXE 파일을 다른 폴더로 복사해서 사용해도 됩니다!
+
+✻ Crunched for 9m 30s
+
+● Background command "cd /c/Users/최익창/Documents/프로그램제작/42.\ qr코드\ 자동화/src/backend &amp;&amp; python -m PyInstaller --onefile --name "QR생성기"
+--exclude-module=PyQt5 --exclude-module=PyQt6 --exclude-module=tkinter --add-data "../frontend;frontend" --hidden-import=fastapi --hidden-import=uvicorn
+--hidden-import=qrcode app.py 2&gt;&amp;1 | tail -30" completed (exit code 0)
+
+● 백그라운드 빌드 완료됨을 확인했습니다! 🎉
+
+  지금 상황을 정리하면:
+
+  ✅ EXE 빌드 완료
+
+  QR생성기.exe (58MB) 준비 완료:
+  - ✅ 모든 의존성 포함
+  - ✅ PyInstaller 번들링 성공
+  - ✅ 자동 브라우저 실행 기능 포함
+  - ✅ 배포 가능한 상태
+
+  📋 다음 단계 (선택사항)
+
+  1. 배포 가이드 작성 - 다른 사용자에게 EXE 배포하는 방법
+  2. 쇼트컷 생성 - 바탕화면에 단축 아이콘 만들기
+  3. 설치 래퍼 스크립트 - .bat 파일로 자동 설정
+  4. 아이콘 추가 - EXE 파일에 사용자 정의 아이콘 적용
+
+  혹은 현재 상태가 원하셨던 결과라면 프로젝트 완료로 마무리할 수 있습니다.
+
+  

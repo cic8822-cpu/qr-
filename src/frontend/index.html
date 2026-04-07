@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR 코드 + 쇼트링크 생성기</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>QR 코드 + 쇼트링크 생성기</h1>
+            <p class="subtitle">마케팅용 URL을 QR 코드와 단축 링크로 변환</p>
+        </header>
+
+        <main>
+            <div class="input-section">
+                <form id="urlForm">
+                    <div class="form-group">
+                        <label for="originalUrl">URL 주소</label>
+                        <input 
+                            type="text" 
+                            id="originalUrl" 
+                            placeholder="https://example.com" 
+                            required
+                        >
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="customAlias">커스텀 별칭 (선택)</label>
+                            <input 
+                                type="text" 
+                                id="customAlias" 
+                                placeholder="my-alias"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="expiresInDays">만료일 (일)</label>
+                            <input 
+                                type="number" 
+                                id="expiresInDays" 
+                                value="30" 
+                                min="1" 
+                                max="365"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="qrSize">QR 코드 크기</label>
+                        <select id="qrSize">
+                            <option value="200">200 x 200</option>
+                            <option value="300" selected>300 x 300</option>
+                            <option value="400">400 x 400</option>
+                            <option value="500">500 x 500</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-primary">
+                        생성하기
+                    </button>
+                </form>
+            </div>
+
+            <div id="resultSection" class="result-section hidden">
+                <h2>생성 완료!</h2>
+                
+                <div class="result-card">
+                    <div class="qr-preview">
+                        <img id="qrImage" alt="QR 코드" />
+                    </div>
+                    
+                    <div class="result-info">
+                        <div class="result-item">
+                            <label>단축 URL</label>
+                            <div class="copy-group">
+                                <input type="text" id="shortUrl" readonly />
+                                <button class="btn-copy" onclick="copyToClipboard('shortUrl')">복사</button>
+                            </div>
+                        </div>
+
+                        <div class="result-item">
+                            <label>원본 URL</label>
+                            <input type="text" id="originalUrlResult" readonly />
+                        </div>
+
+                        <div class="result-item">
+                            <label>QR 코드</label>
+                            <div class="btn-group">
+                                <button class="btn-secondary" onclick="downloadQR('png')">PNG 다운로드</button>
+                                <button class="btn-secondary" onclick="downloadQR('svg')">SVG 다운로드</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-section">
+                    <h3>클릭 분석</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span class="stat-label">총 클릭 수</span>
+                            <span id="clickCount" class="stat-value">0</span>
+                        </div>
+                    </div>
+                    <button class="btn-text" onclick="refreshStats()">새로고침</button>
+                </div>
+            </div>
+
+            <div id="errorMessage" class="error-message hidden"></div>
+        </main>
+
+        <footer>
+            <p>QR ShortLink Generator &copy; 2024</p>
+        </footer>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
